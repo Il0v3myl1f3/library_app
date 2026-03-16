@@ -1,0 +1,54 @@
+entity Author {
+    firstName String required maxlength(45),
+    lastName String required maxlength(45)
+}
+
+entity BookAuthor {
+    bookIsbn String required maxlength(13)
+}
+
+entity Client {
+    firstName String required maxlength(45),
+    lastName String required maxlength(45),
+    address String maxlength(50),
+    phone String maxlength(31)
+}
+
+entity Publisher {
+    name String required maxlength(100)
+}
+
+entity BorrowedBook {
+    bookIsbn String required maxlength(13),
+    borrowDate LocalDate required
+}
+
+entity Book {
+    isbn String required unique maxlength(13),
+    name String required maxlength(100),
+    publishYear String maxlength(4),
+    copies Integer,
+    picture String maxlength(255)
+}
+
+// ======= RELATIONSHIPS (Foreign Keys) =======
+relationship ManyToOne {
+    BookAuthor{author(firstName) required} to Author,
+    BookAuthor{book(isbn) required} to Book,
+    BorrowedBook{client(firstName) required} to Client,
+    BorrowedBook{book(isbn) required} to Book,
+    Book{publisher(name)} to Publisher
+}
+
+// ======= DTO =======
+dto Author, Book, BookAuthor, Client, Publisher, BorrowedBook with mapstruct
+
+// ======= SERVICE LAYER =======
+service Author, Book, BookAuthor, Client, Publisher, BorrowedBook with serviceImpl
+
+// ======= PAGINATION =======
+paginate Book, BorrowedBook, Client, Author, Publisher with pagination
+paginate BookAuthor with infinite-scroll
+
+// ======= FILTERING =======
+filter Book, BorrowedBook, Client, Author, Publisher

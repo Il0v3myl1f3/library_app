@@ -1,0 +1,99 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-book-author-heading" data-cy="BookAuthorCreateUpdateHeading" jhiTranslate="libraryApp.bookAuthor.home.createOrEditLabel">
+        Create or edit a Book Author
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="libraryApp.bookAuthor.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let bookIsbnRef = editForm.get('bookIsbn')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_bookIsbn" jhiTranslate="libraryApp.bookAuthor.bookIsbn">Book Isbn</label>
+          <input type="text" class="form-control" name="bookIsbn" id="field_bookIsbn" data-cy="bookIsbn" formControlName="bookIsbn" />
+          @if (bookIsbnRef.invalid && (bookIsbnRef.dirty || bookIsbnRef.touched)) {
+            <div>
+              @if (editForm.get('bookIsbn')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+              @if (editForm.get('bookIsbn')?.errors?.maxlength) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '13' }"
+                  >This field cannot be longer than 13 characters.</small
+                >
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_author" jhiTranslate="libraryApp.bookAuthor.author">Author</label>
+          <select
+            class="form-control"
+            id="field_author"
+            data-cy="author"
+            name="author"
+            formControlName="author"
+            [compareWith]="compareAuthor"
+          >
+            @if (!editForm.get('author')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (authorOption of authorsSharedCollection; track $index) {
+              <option [ngValue]="authorOption">{{ authorOption.firstName }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['author'])!.invalid && (editForm.get(['author'])!.dirty || editForm.get(['author'])!.touched)) {
+          <div>
+            @if (editForm.get(['author'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_book" jhiTranslate="libraryApp.bookAuthor.book">Book</label>
+          <select class="form-control" id="field_book" data-cy="book" name="book" formControlName="book" [compareWith]="compareBook">
+            @if (!editForm.get('book')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (bookOption of booksSharedCollection; track $index) {
+              <option [ngValue]="bookOption">{{ bookOption.isbn }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['book'])!.invalid && (editForm.get(['book'])!.dirty || editForm.get(['book'])!.touched)) {
+          <div>
+            @if (editForm.get(['book'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
