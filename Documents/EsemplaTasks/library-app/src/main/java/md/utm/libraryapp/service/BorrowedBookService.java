@@ -55,4 +55,19 @@ public interface BorrowedBookService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Borrow a book: validates availability, decrements copies, creates BorrowedBook record.
+     *
+     * @param borrowedBookDTO the borrowing details.
+     * @return the persisted entity.
+     */
+    BorrowedBookDTO borrowBook(BorrowedBookDTO borrowedBookDTO);
+
+    /**
+     * Return a book: increments copies and deletes the BorrowedBook record.
+     *
+     * @param id the id of the BorrowedBook to return.
+     */
+    BorrowedBookDTO returnBook(Long id);
 }

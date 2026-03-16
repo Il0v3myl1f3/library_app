@@ -203,4 +203,44 @@ public class BorrowedBookResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
+
+    /**
+     * {@code POST  /borrowed-books/borrow} : Borrow a book (issue to a reader).
+     *
+     * Validates that the book has available copies, decrements the copies count,
+     * and creates a new BorrowedBook record.
+     *
+     * @param borrowedBookDTO the borrowing details (client, book, borrowDate).
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and the new BorrowedBookDTO.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PostMapping("/borrow")
+    public ResponseEntity<BorrowedBookDTO> borrowBook(@Valid @RequestBody BorrowedBookDTO borrowedBookDTO)
+        throws URISyntaxException {
+        LOG.debug("REST request to borrow Book : {}", borrowedBookDTO);
+        if (borrowedBookDTO.getId() != null) {
+            throw new BadRequestAlertException("A new borrowedBook cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        borrowedBookDTO = borrowedBookService.borrowBook(borrowedBookDTO);
+        return ResponseEntity.created(new URI("/api/borrowed-books/" + borrowedBookDTO.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, borrowedBookDTO.getId().toString()))
+            .body(borrowedBookDTO);
+    }
+
+    /**
+     * {@code POST  /borrowed-books/:id/return} : Return a borrowed book (receive from reader).
+     *
+     * Increments the book's available copies and deletes the BorrowedBook record.
+     *
+     * @param id the id of the BorrowedBook to return.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @PostMapping("/{id}/return")
+    public ResponseEntity<BorrowedBookDTO> returnBook(@PathVariable("id") Long id) {
+        LOG.debug("REST request to return BorrowedBook : {}", id);
+        BorrowedBookDTO result = borrowedBookService.returnBook(id);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .body(result);
+    }
 }
